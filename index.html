@@ -1,0 +1,199 @@
+<style>
+.tshirt-calculator {
+  max-width: 480px;
+  margin: 20px auto;
+  padding: 20px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+  font-family: Arial, sans-serif;
+}
+
+.tshirt-calculator h2 {
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.subtext {
+  text-align: center;
+  font-size: 13px;
+  color: #666;
+  margin-bottom: 15px;
+}
+
+label {
+  font-weight: 600;
+  margin-top: 10px;
+  display: block;
+}
+
+input, select {
+  width: 100%;
+  padding: 10px;
+  margin-top: 5px;
+  margin-bottom: 10px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+}
+
+.row {
+  display: flex;
+  gap: 10px;
+}
+
+.row > div {
+  flex: 1;
+}
+
+button {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 6px;
+  font-size: 15px;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.btn-primary {
+  background: #111;
+  color: #fff;
+}
+
+.btn-secondary {
+  background: #e5e7eb;
+  color: #111;
+}
+
+#sizeResult {
+  margin-top: 15px;
+  text-align: center;
+  font-size: 18px;
+  font-weight: bold;
+  padding: 12px;
+  background: #f9fafb;
+  border-radius: 8px;
+}
+
+.small {
+  font-size: 12px;
+  color: #777;
+  text-align: center;
+  margin-top: 5px;
+}
+
+@media (max-width: 500px) {
+  .row {
+    flex-direction: column;
+  }
+}
+</style>
+
+<div class="tshirt-calculator">
+  <h2>👕 T-Shirt Size Calculator Pro</h2>
+  <div class="subtext">WordPress Compatible Advanced Version</div>
+
+  <label>Unit</label>
+  <select id="unit">
+    <option value="inch">Inches</option>
+    <option value="cm">Centimeters</option>
+  </select>
+
+  <label>Chest Size</label>
+  <input type="number" id="chest" placeholder="Enter chest size">
+
+  <div class="row">
+    <div>
+      <label>Height</label>
+      <input type="number" id="height" placeholder="Height">
+    </div>
+    <div>
+      <label>Weight (kg)</label>
+      <input type="number" id="weight" placeholder="Weight">
+    </div>
+  </div>
+
+  <label>Fit Type</label>
+  <select id="fit">
+    <option value="regular">Regular Fit</option>
+    <option value="slim">Slim Fit</option>
+    <option value="loose">Loose Fit</option>
+  </select>
+
+  <label>Gender</label>
+  <select id="gender">
+    <option value="unisex">Unisex</option>
+    <option value="male">Male</option>
+    <option value="female">Female</option>
+  </select>
+
+  <button class="btn-primary" onclick="calculateSize()">Calculate Size</button>
+  <button class="btn-secondary" onclick="resetForm()">Reset</button>
+
+  <div id="sizeResult">Enter details to get size</div>
+  <div class="small">Auto calculation enabled</div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+  function convertToInch(value, unit) {
+    if (!value) return 0;
+    return unit === "cm" ? value / 2.54 : value;
+  }
+
+  function calculateSize() {
+    let chest = parseFloat(document.getElementById("chest").value);
+    let weight = parseFloat(document.getElementById("weight").value);
+    let unit = document.getElementById("unit").value;
+    let fit = document.getElementById("fit").value;
+    let gender = document.getElementById("gender").value;
+
+    chest = convertToInch(chest, unit);
+
+    let result = "";
+
+    if (!chest || chest <= 0) {
+      result = "⚠️ Please enter valid chest size";
+    } else {
+
+      let score = chest + (weight ? weight / 10 : 0);
+
+      if (fit === "slim") score -= 1;
+      if (fit === "loose") score += 2;
+
+      let size = "";
+
+      if (score < 34) size = "XS";
+      else if (score <= 36) size = "S";
+      else if (score <= 40) size = "M";
+      else if (score <= 44) size = "L";
+      else if (score <= 48) size = "XL";
+      else size = "XXL";
+
+      if (gender === "female" && size === "M") size = "S";
+
+      result = "✅ Recommended Size: " + size;
+    }
+
+    document.getElementById("sizeResult").innerHTML = result;
+  }
+
+  function resetForm() {
+    document.getElementById("chest").value = "";
+    document.getElementById("height").value = "";
+    document.getElementById("weight").value = "";
+    document.getElementById("sizeResult").innerHTML = "Enter details to get size";
+  }
+
+  // 🔥 IMPORTANT: expose to WordPress global scope
+  window.calculateSize = calculateSize;
+  window.resetForm = resetForm;
+
+  // 🔥 Auto calculate on input change
+  document.querySelectorAll("#chest, #weight, #unit, #fit, #gender").forEach(el => {
+    el.addEventListener("input", calculateSize);
+  });
+
+});
+</script>
